@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  userid   Int      @id @default(autoincrement())
+  name     String
+  role     String   @default("CUSTOMER")
+  telNr    String
+  mail     String
+  password String
+  events   Events[] @relation("User_Events") //n-n user-events
+  orders   Order[] //1-N user_order
+}
+
+model Cocktail {
+  cocktailid  Int      @id @default(autoincrement())
+  name        String
+  ingredients String[]
+  description String
+  orders      Order[]  @relation("Order_Cocktail") // n-n order-cocktail
+}
+
+model Order {
+  orderid      Int        @id @default(autoincrement())
+  userID       Int
+  deliveryDate DateTime
+  users        User       @relation(fields: [userID], references: [userid])
+  cocktails    Cocktail[] @relation("Order_Cocktail") //n-n order-cocktail
+}
+
+model Events {
+  eventid     Int      @id @default(autoincrement())
+  name        String
+  address     String
+  date        DateTime
+  duration    DateTime
+  description String
+  maxUsers    Int
+  users       User[]   @relation("User_Events")
+}
+
+enum Role {
+  ADMIN
+  EMPLOYEE
+  CUSTOMER
+}
